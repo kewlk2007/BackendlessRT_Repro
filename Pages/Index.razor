@@ -1,0 +1,43 @@
+﻿@using BackendlessAPI
+@using BackendlessAPI.RT
+@page "/"
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code{
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            Backendless.RT.AddConnectListener(async () =>
+            {
+                System.Console.WriteLine($"connection status: connected");
+            });
+
+            Backendless.RT.AddConnectErrorListener((fault) =>
+            {
+                Device.BeginInvokeOnMainThread(async () =>
+                {
+                    System.Console.WriteLine($"connection cannot be established {fault.Message}");
+                });
+             });
+
+            IEventHandler<Dictionary<String, Object>> userMessagesRT = Backendless.Data.Of("UserMessages").RT();
+            userMessagesRT.AddUpdateListener("objectId = '8f7957d5-9e53-4008-9ff5-f602c69adbbd'", createdObj =>
+            {
+               System.Console.WriteLine($"usermessage updated {createdObj["objectId"]}");
+            });
+
+        }
+        catch(Exception e)
+        {
+
+        }
+    }
+}
